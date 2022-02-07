@@ -1,7 +1,7 @@
 <<comment
-    Util shell script for creating component and domain.
-    ARG1 is the directory(components or domains)
-    ARG2 is the name of the component
+    Util shell script for creating components and domains.
+    ARG1 is the directory(component or domain)
+    ARG2 is the name of the ComponentName
 comment
 
 ARG1=$1
