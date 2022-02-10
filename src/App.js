@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRoutes, Outlet } from 'react-router-dom';
+import { useRoutes } from 'react-router-dom';
 /**
  * External Libraries
  */
@@ -12,6 +12,7 @@ import Footer from './components/Footer/Footer';
 /**
  * Utils
  */
+import withAuthentication from './components/HOC/withAuthentication';
 import { ROUTES } from './routes';
 
 function App() {
@@ -32,4 +33,4 @@ function App() {
     );
 }
 
-export default App;
+export default withAuthentication(App);

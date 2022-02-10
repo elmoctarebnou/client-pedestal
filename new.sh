@@ -18,12 +18,16 @@ function create_folder(){
     cat > ./src/${FOLDER}/${COMPONENT_NAME}/${COMPONENT_NAME}.js <<EOM
 import React, { useState, useEffect } from 'react';
 
+import makeStyles from '@mui/styles/makeStyles';
+
 import styles from './${COMPONENT_NAME}.style.js';
 
 const ${COMPONENT_NAME} = (props) => {
 
+    const classes = makeStyles(styles())();
+
     return (
-        <div>
+        <div className={classes.column}>
             ${COMPONENT_NAME}
         </div>
     )
@@ -35,7 +39,14 @@ EOM
     cat > ./src/${FOLDER}/${COMPONENT_NAME}/${COMPONENT_NAME}.style.js <<EOM
 export default function styles(){
     return {
-
+        column: {
+            display: 'flex',
+            flexDirection: 'column',
+        },
+        row: {
+            display: 'flex',
+            flexDirection: 'row',
+        }
     }
 };
 EOM

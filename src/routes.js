@@ -7,7 +7,6 @@ import { Outlet } from 'react-router-dom';
 
 import NotFound404 from './pages/NotFound404/NotFound404';
 import Home from './pages/Home/Home';
-import LogIn from './pages/LogIn/LogIn';
 import SignUp from './pages/SignUp/SignUp';
 import User from './pages/User/User';
 import UserDetail from './pages/UserDetail/UserDetail';
@@ -19,8 +18,6 @@ const ROUTES = [
         element: <Outlet/>,
         children: [
             { path: "", element: <Home />},
-            { path: "/login", element: <LogIn />},
-            { path: "/signup", element: <SignUp />},
             {
                 path: "/user",
                 element: <Outlet/>,
