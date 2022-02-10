@@ -19,7 +19,9 @@ function App() {
     let routeElements = useRoutes(ROUTES);
 
     return (
-        // StyledEngineProvider removes MUI styling precedence
+        /**
+         * StyledEngineProvider removes MUI styling precedence over custom css properties.
+         */
         <StyledEngineProvider injectFirst>
             <div className="App">
                 <NavBar/>
