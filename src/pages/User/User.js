@@ -1,0 +1,14 @@
+import React, { useState, useEffect } from 'react';
+
+import styles from './User.style.js';
+
+const User = (props) => {
+
+    return (
+        <div>
+            User
+        </div>
+    )
+};
+
+export default User;

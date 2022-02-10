@@ -41,7 +41,7 @@ export default function styles(){
 EOM
 
     echo '------------'
-    echo Folder ${ARG2} added to ./src/${FOLDER}/${COMPONENT_NAME}
+    echo New folder ${ARG2} added. PATH: ./src/${FOLDER}/${COMPONENT_NAME}
     echo '------------'
 }
 
@@ -51,8 +51,8 @@ if [ ${ARG1} == 'component' ]
         FOLDER='components'
         create_folder
     fi
-if [ ${ARG1} == 'domain' ]
+if [ ${ARG1} == 'page' ]
     then
-        FOLDER='domains'
+        FOLDER='pages'
         create_folder
     fi
