@@ -7,7 +7,6 @@ import { Outlet } from 'react-router-dom';
 
 import NotFound404 from './pages/NotFound404/NotFound404';
 import Home from './pages/Home/Home';
-import SignUp from './pages/SignUp/SignUp';
 import User from './pages/User/User';
 import UserDetail from './pages/UserDetail/UserDetail';
 

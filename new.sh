@@ -1,6 +1,7 @@
+#!/bin/bash
 <<comment
-    Util shell script for creating components.
-    ARG1: Component folder type(component or domain)
+    Util bash script for creating components.
+    ARG1: Component folder type(c for components or p for pages)
     ARG2: ComponentName
 comment
 
@@ -20,7 +21,7 @@ import React, { useState, useEffect } from 'react';
 
 import makeStyles from '@mui/styles/makeStyles';
 
-import styles from './${COMPONENT_NAME}.style.js';
+import styles from './${COMPONENT_NAME}.styles.js'
 
 const ${COMPONENT_NAME} = (props) => {
 
@@ -36,7 +37,7 @@ const ${COMPONENT_NAME} = (props) => {
 export default ${COMPONENT_NAME};
 EOM
 
-    cat > ./src/${FOLDER}/${COMPONENT_NAME}/${COMPONENT_NAME}.style.js <<EOM
+    cat > ./src/${FOLDER}/${COMPONENT_NAME}/${COMPONENT_NAME}.styles.js <<EOM
 export default function styles(){
     return {
         column: {
@@ -50,6 +51,20 @@ export default function styles(){
     }
 };
 EOM
+    mkdir ./src/${FOLDER}/${COMPONENT_NAME}/state
+
+    local FIRST_LETTER_LOWER_CASE="$(tr '[:upper:]' '[:lower:]' <<< ${COMPONENT_NAME:0:1})"
+    local FORMATED_COMPONENT_NAME="${FIRST_LETTER_LOWER_CASE}${COMPONENT_NAME:1}"
+
+    REDUX_ACTION_FILE_NAME="${FORMATED_COMPONENT_NAME}Actions"
+    REDUX_REDUCERS_FILE_NAME="${FORMATED_COMPONENT_NAME}Reducers"
+
+    cat > ./src/${FOLDER}/${COMPONENT_NAME}/state/${REDUX_ACTION_FILE_NAME}.js <<EOM
+// Redux actions file
+EOM
+    cat > ./src/${FOLDER}/${COMPONENT_NAME}/state/${REDUX_REDUCERS_FILE_NAME}.js <<EOM
+// Redux reducers file
+EOM
 
     echo '------------'
     echo New folder ${ARG2} added. PATH: ./src/${FOLDER}/${COMPONENT_NAME}
@@ -57,12 +72,12 @@ EOM
 }
 
 
-if [ ${ARG1} == 'component' ]
+if [ ${ARG1} == 'c' ]
     then
         FOLDER='components'
         create_folder
     fi
-if [ ${ARG1} == 'page' ]
+if [ ${ARG1} == 'p' ]
     then
         FOLDER='pages'
         create_folder
