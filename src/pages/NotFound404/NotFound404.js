@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import styles from './NotFound404.style.js';
+import styles from './NotFound404.styles.js';
 
 const NotFound404 = (props) => {
 

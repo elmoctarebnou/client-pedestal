@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import styles from './UserDetail.style.js';
+import styles from './UserDetail.styles.js';
 
 const UserDetail = (props) => {
 

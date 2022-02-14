@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import styles from './User.style.js';
+import styles from './User.styles.js';
 
 const User = (props) => {
 
