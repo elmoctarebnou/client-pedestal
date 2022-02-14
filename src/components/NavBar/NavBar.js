@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import styles from './NavBar.style.js';
+import styles from './NavBar.styles.js';
 
 const NavBar = (props) => {
 

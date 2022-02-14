@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import styles from './LogIn.style.js';
+import styles from './LogIn.styles.js';
 
 const LogIn = (props) => {
 

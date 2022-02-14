@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import styles from './Unauthorized.style.js';
+import styles from './Unauthorized.styles.js';
 
 const Unauthorized = (props) => {
 
