@@ -69,7 +69,7 @@ const PieChart = ({ dataList, valueMetric, labelPosition = 'right' }) => {
                     if (d['index'] === clickedRowId) return radius * 1.05;
                     else return radius * 0.9;
                 })
-                .cornerRadius(3);
+                .cornerRadius(3)
             const pie = wrapper.append('g').attr('transform', `translate(${150},${150})`);
             pie.selectAll('path')
                 .data(arcs)
@@ -89,16 +89,16 @@ const PieChart = ({ dataList, valueMetric, labelPosition = 'right' }) => {
                         return i * 30;
                     } else return 0;
                 })
-                .duration((d) => 500)
+                .duration(1000)
                 .attrTween('d', function (d) {
                     if (drawType === 'initial') {
                         let i = d3.interpolate(d.startAngle, d.endAngle);
                         return function (t) {
                             d.endAngle = i(t);
-                            return arc(d);
+                            return arc(d)
                         };
                     } else return () => arc(d);
-                });
+                })
         }
     };
 

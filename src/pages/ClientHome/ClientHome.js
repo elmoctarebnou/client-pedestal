@@ -350,13 +350,14 @@ const ClientHome = (props) => {
     const classes = makeStyles(styles())();
     const renderPerformanceChart = () => {
         const dims = {
-            width: window.innerWidth * .68,
-            height: 530,
+            // width: window.innerWidth * .68,
+            width: window.innerWidth * .95,
+            height: 400,
             margin: {
-                top: 5,
-                right: 80,
+                top: 0,
+                right: 70,
                 bottom: 60,
-                left: 16,
+                left: 0,
             },
         };
         if (householdPerformance) {
@@ -392,9 +393,9 @@ const ClientHome = (props) => {
     return (
         <div className={classes.page}>
             <div className={classes.mainTop}>
-                {renderPieChart()}
                 {renderPerformanceChart()}
             </div>
+            {renderPieChart()}
         </div>
     );
 };

@@ -37,10 +37,10 @@ const PerformanceChart = (props) => {
         width: window.innerWidth * 0.6,
         height: 400,
         margin: {
-            top: 15,
-            right: 80,
+            top: 0,
+            right: 70,
             bottom: 60,
-            left: 15,
+            left: 0,
         }
     };
 
@@ -102,11 +102,14 @@ const PerformanceChart = (props) => {
             .style('transform', `translateY(${dims.boundedHeight}px)`);
         bounds.append('g').attr('class', 'y-axis');
         // Gradiant area
-        const areaConstructor = (data, yValue) => {
+        const areaConstructor = (data, yValue, initial) => {
             const area = d3.area()
                 .x((d) => xScale(SERVICE.xAccessor(d)))
                 .y0(dims.boundedHeight)
-                .y1((d) => yScale(SERVICE.getYAccessor(yMetric)(d, yValue)))
+                .y1((d) => initial
+                    ? dims.boundedHeight
+                    : yScale(SERVICE.getYAccessor(yMetric)(d, yValue))
+                )
             return area(data)
         }
         // Create gradient
@@ -118,7 +121,7 @@ const PerformanceChart = (props) => {
                 .attr('x1', '0%')
                 .attr('y1', '100%')
                 .attr('x2', '0%')
-                .attr('y2', '0%');
+                .attr('y2', '0%')
             gradient.append('stop')
                 .attr('offset', '0%')
                 .attr('style', `stop-color:${colorsList[id]};stop-opacity:0`);
@@ -135,7 +138,7 @@ const PerformanceChart = (props) => {
                 .y((d) => yScale(SERVICE.getYAccessor(yMetric)(d, yValue)))
             return line(data);
         };
-        // Draw lines
+        // Draw lines and areas
         yValues.forEach((val, i) => {
             bounds
                 .append('path')
@@ -147,7 +150,13 @@ const PerformanceChart = (props) => {
             bounds
                 .append('path')
                 .attr("class", "area")
-                .attr('d', areaConstructor(linesData, yValues[i]))
+                .attr('d', areaConstructor(linesData, yValues[i], true))
+                .attr('fill', `url(#${getGradient(i)})`)
+                .transition()
+                .delay(500)
+                .duration(1000)
+                .ease(d3.easeQuad)
+                .attr('d', areaConstructor(linesData, yValues[i], false))
         });
         const lines = d3.selectAll('.line')
         lines.each((d, i, nodes) => {
@@ -157,18 +166,9 @@ const PerformanceChart = (props) => {
                 .attr('stroke-dasharray', `${length},${length}`)
                 .attr('stroke-dashoffset', length)
                 .transition()
-                .duration(1000)
+                .duration(500)
                 .ease(d3.easeLinear)
                 .attr('stroke-dashoffset', 0)
-        });
-        const areas = d3.selectAll('.area')
-        areas.each((d, i, nodes) => {
-            const element = nodes[i];
-            d3.select(element)
-                .attr('fill', `url(#${getGradient(i)})`)
-                .transition()
-                .duration(3000)
-                .ease(d3.easeSinIn)
         });
         // Y axis
         const yAxisGenerator = d3
@@ -183,18 +183,21 @@ const PerformanceChart = (props) => {
         const yAxisLabel = yAxis
             .append('text')
             .attr('x', dims.boundedHeight / 2)
-            .attr('y', -dims.margin.left - 40)
+            .attr('y', -dims.margin.left - 50)
             .attr('fill', 'black')
             .style('font-size', '1.4em')
             .text(yMetric === 'dollar' ? 'Value' : 'Performance %')
             .style('transform', 'rotate(90deg)')
             .style('text-anchor', 'middle');
         // X axis
-        const xAxisGenerator = d3.axisBottom().scale(xScale).tickSizeOuter(0);
+        const xAxisGenerator = d3.axisBottom()
+            .scale(xScale)
+            .tickSizeOuter(0)
+            .ticks(dims.width < 500 ? 5 : 10)
         const xAxis = bounds
             .append('g')
             .call(xAxisGenerator)
-            .style('transform', `translateY(${dims.boundedHeight}px)`);
+            .style('transform', `translateY(${dims.boundedHeight}px)`)
         const xAxisLabel = xAxis
             .append('text')
             .attr('x', dims.boundedWidth / 2)
@@ -213,25 +216,21 @@ const PerformanceChart = (props) => {
                 .attr('stroke-width', 1)
                 .style('opacity', 0)
         );
+
         const tooltipCircles = d3.selectAll('.circle-tooltip');
         const tooltip = d3.select('#tooltip');
         tooltip.select('#date').text(SERVICE.humanDateParser(linesData[0]['date']));
         tooltip
             .select('#performance')
-            .html(`
-                <div>
-                    ${tooltipNames}
-                </div >`
-            );
+            .html(SERVICE.formatPerformance(
+                linesData[0], yValues, yMetric, tooltipNames, colorsList));
         // Display tooltip detail rectangle
-        const displayTooltipInfo = (dataPoint, index) => {
+        const displayTooltipInfo = (dataPoint, index, mousePosition) => {
             tooltip.select('#date').text(SERVICE.humanDateParser(dataPoint['date']));
             tooltip
                 .select('#performance')
-                .html(
-                    // SERVICE.formatPerformance(
-                    //     dataPoint, yValues, yMetric, tooltipNames)
-                );
+                .html(SERVICE.formatPerformance(
+                    dataPoint, yValues, yMetric, tooltipNames, colorsList));
             let largestYValue = null;
             for (let i = 0; i < yValues.length; i++) {
                 if (largestYValue === null) largestYValue = yValues[i];
@@ -242,11 +241,14 @@ const PerformanceChart = (props) => {
             }
             const tooltipXValue = SERVICE.xAccessor(dataPoint);
             const tooltipYValue = SERVICE.getYAccessor(yMetric)(dataPoint, largestYValue);
-            let x;
-            let y = yScale(tooltipYValue) - 30;
-            if (index <= linesData.length / 2) x = xScale(tooltipXValue) + 60;
-            else x = xScale(tooltipXValue) - 240;
+            let midPoint = (dims.width - dims.margin.right) / 2 ;
+            let y = yScale(tooltipYValue) + 20;
+            let x = xScale(tooltipXValue);
+            if (x >= midPoint) x -= 220
+            else x += 20
+
             tooltip.style('transform', `translate(${x}px, ${y}px)`);
+
             tooltipCircles.each(function (d, i) {
                 const closestXValue = SERVICE.xAccessor(dataPoint);
                 const closestYValue = SERVICE.getYAccessor(yMetric)(
@@ -272,7 +274,7 @@ const PerformanceChart = (props) => {
                 linesData,
                 closestIndex
             );
-            displayTooltipInfo(closestDataPoint, closestIndex);
+            displayTooltipInfo(closestDataPoint, closestIndex, mousePosition);
         };
         // Handle click on canvas
         const onClick = (event) => {
@@ -308,7 +310,6 @@ const PerformanceChart = (props) => {
                 ])
                 .on('end', handleBrush);
             bounds.append('g').attr('class', 'brush').call(brush);
-
             function handleBrush(event) {
                 const brushArea = event.selection;
                 if (!brushArea) return null;
@@ -342,11 +343,15 @@ const PerformanceChart = (props) => {
 
     return (
         <div>
-            <Paper id="tooltip" variant="outlined" className={classes.tooltip}>
-                <div className={classes.column}>
-                    <span id="date" className={classes.date}></span>
-                    <span id="performance" className={classes.performance}></span>
-                </div>
+            <Paper
+                id="tooltip"
+                variant="outlined"
+                className={classes.tooltip}
+            >
+                <span id="date" className={classes.date}>
+                </span>
+                <span id="performance" className={classes.performance}>
+                </span>
             </Paper>
             <div className={classes.main} id="main">
                 <div className={classes.btnContainer}>
@@ -357,6 +362,7 @@ const PerformanceChart = (props) => {
                         onClick={handleClick}
                         disabled={isBrushing ? true : false}
                         size="small"
+                        className={classes.actionBtn}
                     >
                         Zoom
                     </Button>
@@ -367,6 +373,7 @@ const PerformanceChart = (props) => {
                         onClick={handleClick}
                         style={{ marginLeft: '.5em' }}
                         size="small"
+                        className={classes.actionBtn}
                     >
                         Reset
                     </Button>
