@@ -12,7 +12,6 @@ export default function styles(){
             display: 'flex',
             flexDirection: 'column',
             padding: '1em',
-            margin: '10em 0 0 0'
         },
         mainTop: {
             display: 'flex',

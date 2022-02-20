@@ -113,7 +113,31 @@ const getBrushAreaData = (dataList, startX, endX) => {
     return brushedData;
 };
 
+const formatPerformance = (data, yValues, yMetric, tooltipNames, colorsList) => {
+    if (data) {
+        let performance = '';
+        if (yMetric === 'dollar') {
+            yValues.forEach((d, i) => {
+                performance += `<span style="color:${colorsList[i]}">
+                    ${tooltipNames[i]}
+                    </span>: ${USDFormat.format(
+                    data[yValues[i]]
+                )}`;
+                performance += `<br/>`;
+            });
+        } else {
+            yValues.forEach((d, i) => {
+                performance += `<span style="color:${colorsList[i]}">
+                    ${tooltipNames[i]}</span>: ${(data[yValues[i]] * 100).toFixed(2)} %`;
+                performance += `<br/>`;
+            });
+        }
+        return performance;
+    }
+};
+
 export {
+    formatPerformance,
     USDFormat,
     humanDateParser,
     dollarFormat,
