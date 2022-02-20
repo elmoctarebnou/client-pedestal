@@ -9,6 +9,7 @@ import NotFound404 from './pages/NotFound404/NotFound404';
 import Home from './pages/Home/Home';
 import User from './pages/User/User';
 import UserDetail from './pages/UserDetail/UserDetail';
+import ClientHome from './pages/ClientHome/ClientHome';
 
 
 const ROUTES = [
@@ -17,6 +18,7 @@ const ROUTES = [
         element: <Outlet/>,
         children: [
             { path: "", element: <Home />},
+            { path: "/client", element: <ClientHome />},
             {
                 path: "/user",
                 element: <Outlet/>,

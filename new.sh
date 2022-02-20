@@ -82,6 +82,8 @@ export const ${REDUX_SLICE_NAME} = createSlice({
 
 export const { actionName } = ${REDUX_SLICE_NAME}.actions;
 
+// Add selectors bellow
+
 /*
 Use the bellow export to import the reducer in the Redux store
 e.g: import ${REDUX_SLICE_NAME}Reducer from 'THISFILEPATH'
