@@ -6,7 +6,6 @@ const NavBar = (props) => {
 
     return (
         <div>
-            NavBar
         </div>
     )
 };

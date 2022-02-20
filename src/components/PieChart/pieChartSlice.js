@@ -5,7 +5,7 @@ const initialState = {
 
 }
 
-export const onboardSlice = createSlice({
+export const pieChartSlice = createSlice({
     name: '',
     initialState,
     reducers: {
@@ -17,10 +17,12 @@ export const onboardSlice = createSlice({
     }
 })
 
-export const { actionName } = onboardSlice.actions;
+export const { actionName } = pieChartSlice.actions;
+
+// Add selectors bellow
 
 /*
 Use the bellow export to import the reducer in the Redux store
-e.g: import onboardSliceReducer from 'THISFILEPATH'
+e.g: import pieChartSliceReducer from 'THISFILEPATH'
 */
-export default onboardSlice.reducer;
+export default pieChartSlice.reducer;
