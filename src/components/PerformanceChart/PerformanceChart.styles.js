@@ -4,24 +4,41 @@ export default function styles() {
         column: {
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
+        },
+        row: {
+            display: 'flex',
+            flexDirection: 'row',
         },
         card: {
             padding: '1em',
         },
         main: {
-            backgroundColor: primaryColor,
+            // backgroundColor: primaryColor,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             padding: '0',
             borderRadius: '.3em',
+            margin: '0 0 1em 0'
         },
         chartHeader: {
-            fontSize: '1.3em',
-            fontWeight: '600',
-            color: 'black',
-            margin: '0 auto',
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            margin: '0 0 1em 0',
+            width: '100%',
+            padding: '0 .2em'
+        },
+        chartHeaderLeft: {
+            display: 'flex',
+            flexDirection: 'column',
+            maxWidth: '45%'
+        },
+        chartHeaderRight: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            maxWidth: '52%',
         },
         chart: {
             display: 'flex',
@@ -30,6 +47,32 @@ export default function styles() {
         verticalText: {
             transform: 'rotate(-90deg)',
             margin: 0,
+        },
+        viewOption: {
+            fontSize: '.8em',
+            padding: '.5em 1em',
+            borderRadius: '5px',
+            height: '2em',
+            '&:hover': {
+                cursor: 'pointer',
+                backgroundColor: primaryColor
+            }
+        },
+        viewOptionActive: {
+            fontSize: '.8em',
+            padding: '.5em 1em',
+            borderRadius: '5px',
+            height: '2em',
+            backgroundColor: '#0288d1',
+            color: 'white',
+            '&:hover': {
+                cursor: 'pointer'
+            }
+        },
+        square: {
+            width: '1.5em',
+            height: '.2em',
+            borderRadius: '5px',
         },
         date: {
             backgroundColor: '#0288d1',
@@ -55,12 +98,6 @@ export default function styles() {
             position: 'relative',
             transition: 'ease .1s',
             backgroundColor: 'rgba(255, 255, 255, 0.7)'
-        },
-        btnContainer: {
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            margin: '0.5em 0.5em .5em auto',
         },
         actionBtn: {
             padding: '0 .2em'

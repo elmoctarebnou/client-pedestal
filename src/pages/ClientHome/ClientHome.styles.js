@@ -11,12 +11,13 @@ export default function styles(){
         page: {
             display: 'flex',
             flexDirection: 'column',
-            padding: '1em',
+            margin: '1em 0 0 0'
         },
         mainTop: {
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',
+            margin: '0 auto 1em auto'
         },
     }
 };

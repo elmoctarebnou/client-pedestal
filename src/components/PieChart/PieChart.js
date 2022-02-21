@@ -24,12 +24,12 @@ const PieChart = ({ dataList, valueMetric, labelPosition = 'right' }) => {
 
     let dims = {
         width: 300,
-        height: 320,
+        height: 300,
         margin: {
-            top: 100,
-            right: 100,
-            bottom: 100,
-            left: 100,
+            top: 50,
+            right: 50,
+            bottom: 50,
+            left: 50,
         },
     };
 
@@ -55,7 +55,7 @@ const PieChart = ({ dataList, valueMetric, labelPosition = 'right' }) => {
                 .attr('overflow', 'visible');
 
             // Pie generator scale
-            const radius = 150;
+            const radius = 130;
             const arcGenerator = d3
                 .pie()
                 .padAngle(0.03)

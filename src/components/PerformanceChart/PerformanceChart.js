@@ -2,8 +2,14 @@ import React, { useEffect, useState, useRef } from 'react';
 
 import * as d3 from 'd3';
 
+import {
+    Paper,
+    Box,
+    BottomNavigation,
+    BottomNavigationAction,
+    Button
+} from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { Paper, Button } from '@mui/material';
 
 
 import { colorsList } from '../../utils/constants/constants';
@@ -18,7 +24,8 @@ const PerformanceChart = (props) => {
 
     const [initialLinesData, setInitialLinesData] = useState(null);
     const [linesData, setLinesData] = useState(null);
-    const [isBrushing, setIsBrushing] = useState(false);
+    const [viewOption, setViewOption] = useState(0);
+    const [viewOptionsList, setViewOptionsList] = useState(['1Y', '2Y', '5Y', 'ALL']);
 
     const classes = makeStyles(styles())();
     const chartSvg = useRef(null);
@@ -38,7 +45,7 @@ const PerformanceChart = (props) => {
         height: 400,
         margin: {
             top: 0,
-            right: 70,
+            right: 0,
             bottom: 60,
             left: 0,
         }
@@ -63,15 +70,14 @@ const PerformanceChart = (props) => {
             renderChart();
             if (callBack) callBack(linesData[linesData.length - 1]);
         }
-    }, [linesData, isBrushing, dimensions]);
+    }, [linesData, dimensions, viewOption]);
 
     const handleClick = (e) => {
         const { name } = e.currentTarget;
         if (name === 'reset-data') {
             setLinesData(JSON.parse(JSON.stringify(initialLinesData)));
-            setIsBrushing(false);
-        } else if (name === 'brush-zoom') {
-            setIsBrushing(true);
+        }
+        else if (name === 'brush-zoom') {
         }
     };
 
@@ -180,31 +186,15 @@ const PerformanceChart = (props) => {
             .append('g')
             .call(yAxisGenerator)
             .style('transform', `translateX(${dims.boundedWidth}px)`);
-        const yAxisLabel = yAxis
-            .append('text')
-            .attr('x', dims.boundedHeight / 2)
-            .attr('y', -dims.margin.left - 50)
-            .attr('fill', 'black')
-            .style('font-size', '1.4em')
-            .text(yMetric === 'dollar' ? 'Value' : 'Performance %')
-            .style('transform', 'rotate(90deg)')
-            .style('text-anchor', 'middle');
         // X axis
         const xAxisGenerator = d3.axisBottom()
             .scale(xScale)
             .tickSizeOuter(0)
-            .ticks(dims.width < 500 ? 5 : 10)
+            .ticks(dims.width < 500 ? 5 : 15)
         const xAxis = bounds
             .append('g')
             .call(xAxisGenerator)
             .style('transform', `translateY(${dims.boundedHeight}px)`)
-        const xAxisLabel = xAxis
-            .append('text')
-            .attr('x', dims.boundedWidth / 2)
-            .attr('y', dims.margin.bottom - 10)
-            .attr('fill', 'black')
-            .style('font-size', '1.4em')
-            .html('Timeline (Day)');
         // Tooltip small circles
         yValues.forEach((yValue, i) =>
             bounds
@@ -216,39 +206,67 @@ const PerformanceChart = (props) => {
                 .attr('stroke-width', 1)
                 .style('opacity', 0)
         );
-
         const tooltipCircles = d3.selectAll('.circle-tooltip');
-        const tooltip = d3.select('#tooltip');
-        tooltip.select('#date').text(SERVICE.humanDateParser(linesData[0]['date']));
-        tooltip
-            .select('#performance')
-            .html(SERVICE.formatPerformance(
-                linesData[0], yValues, yMetric, tooltipNames, colorsList));
-        // Display tooltip detail rectangle
+        const tooltip = bounds.append('g').style('pointer-events', 'none')
         const displayTooltipInfo = (dataPoint, index, mousePosition) => {
-            tooltip.select('#date').text(SERVICE.humanDateParser(dataPoint['date']));
-            tooltip
-                .select('#performance')
-                .html(SERVICE.formatPerformance(
-                    dataPoint, yValues, yMetric, tooltipNames, colorsList));
+            // Handle tootip position
             let largestYValue = null;
             for (let i = 0; i < yValues.length; i++) {
                 if (largestYValue === null) largestYValue = yValues[i];
                 else {
-                    if (dataPoint[largestYValue] <= dataPoint[yValues[i]])
-                        largestYValue = yValues[i];
+                    if (dataPoint[largestYValue] <= dataPoint[yValues[i]]) largestYValue = yValues[i];
                 }
             }
             const tooltipXValue = SERVICE.xAccessor(dataPoint);
             const tooltipYValue = SERVICE.getYAccessor(yMetric)(dataPoint, largestYValue);
             let midPoint = (dims.width - dims.margin.right) / 2 ;
-            let y = yScale(tooltipYValue) + 20;
-            let x = xScale(tooltipXValue);
-            if (x >= midPoint) x -= 220
-            else x += 20
+            tooltip.style('display', null)
+            tooltip.attr(
+                'transform',
+                `translate(
+                    ${xScale(tooltipXValue)},
+                    ${yScale(tooltipYValue)}
+                )`
+            )
+            const tooltipPath = tooltip.selectAll('path')
+                .data([,])
+                .join("path")
+                .attr("fill", "white")
+                .attr("stroke", "gray")
+                .attr('border-radius', '5px')
 
-            tooltip.style('transform', `translate(${x}px, ${y}px)`);
-
+            const tooltipText = tooltip.selectAll('text')
+                .data([,])
+                .join('text')
+                .call(text => {
+                    return text
+                        .selectAll('tspan')
+                        .data(yValues)
+                        .join('tspan')
+                        .attr('x', 0)
+                        .attr('y', (_, i) => `${i * 1.2}em`)
+                        .text((d, i) => SERVICE.USDFormat.format(dataPoint[d]))
+                        .style('fill', (d, i) => colorsList[i])
+                })
+                .transition()
+                .duration(100)
+                .ease(d3.easeSinIn)
+            const O = d3.map(data, d => d);
+            const { x, y, width: w, height: h} = tooltipText.node().getBBox();
+            tooltipText.attr("transform", `translate(${-w / 2},${-75 - y})`);
+            tooltipPath.attr(
+                "d",
+                `
+                M${-w / 2 - 10},25H-5l5,
+                -5l5,5H
+                ${w / 2 + 10}v
+                ${h + 20}
+                h-${w + 20}z
+                `
+            )
+            .attr('transform', 'rotate(180)')
+            bounds.property("value", O[index]).dispatch("input", {bubbles: true});
+            // handle tootipCircle position
             tooltipCircles.each(function (d, i) {
                 const closestXValue = SERVICE.xAccessor(dataPoint);
                 const closestYValue = SERVICE.getYAccessor(yMetric)(
@@ -258,10 +276,12 @@ const PerformanceChart = (props) => {
                 d3.select(this)
                     .attr('cx', xScale(closestXValue))
                     .attr('cy', yScale(closestYValue))
+                    .transition()
+                    .delay(500)
                     .style('opacity', 1);
             });
         };
-        const hoveredDate = new Date(linesData[linesData.length - 1]['date']);
+        const hoveredDate = new Date(linesData[(linesData.length - 1) / 2]['date']);
         const closestIndex = SERVICE.getClosestIndex(linesData, hoveredDate);
         const closestDataPoint = SERVICE.getClosestDataPoints(linesData, closestIndex);
         displayTooltipInfo(closestDataPoint, closestIndex);
@@ -270,12 +290,17 @@ const PerformanceChart = (props) => {
             const mousePosition = d3.pointer(event);
             const hoveredDate = xScale.invert(mousePosition[0]);
             const closestIndex = SERVICE.getClosestIndex(linesData, hoveredDate);
-            const closestDataPoint = SERVICE.getClosestDataPoints(
-                linesData,
-                closestIndex
-            );
+            const closestDataPoint = SERVICE.getClosestDataPoints(linesData, closestIndex);
             displayTooltipInfo(closestDataPoint, closestIndex, mousePosition);
-        };
+        }
+        // Handle mobil touch on canvas
+        const onTouchMove = evt => {
+            const touchPosition = [...evt.touches].map(e => d3.pointer(e, evt.currentTarget))[0]
+            const touchedDate = xScale.invert(touchPosition[0]);
+            const closestIndex = SERVICE.getClosestIndex(linesData, touchedDate);
+            const closestDataPoint = SERVICE.getClosestDataPoints(linesData, closestIndex);
+            displayTooltipInfo(closestDataPoint, closestIndex, touchPosition);
+        }
         // Handle click on canvas
         const onClick = (event) => {
             const mousePosition = d3.pointer(event);
@@ -288,104 +313,76 @@ const PerformanceChart = (props) => {
             if (callBack) {
                 callBack(closestDataPoint);
             }
-        };
+        }
         // Add event listener
-        if (!isBrushing) {
-            const listeningRect = wrapper
-                .append('rect')
-                .attr('class', 'listening-rect')
-                .attr('opacity', 0)
-                .attr('width', dims.width)
-                .attr('height', dims.height)
-                .on('mousemove', onMouseMove)
-                .on('click', onClick);
-        }
-        // Handle brushing
-        if (isBrushing) {
-            const brush = d3
-                .brushX()
-                .extent([
-                    [0, 0],
-                    [dims.boundedWidth, dims.boundedHeight],
-                ])
-                .on('end', handleBrush);
-            bounds.append('g').attr('class', 'brush').call(brush);
-            function handleBrush(event) {
-                const brushArea = event.selection;
-                if (!brushArea) return null;
-                else {
-                    const startDate = xScale.invert(brushArea[0]);
-                    const endDate = xScale.invert(brushArea[1]);
-                    const brushedAreaData = SERVICE.getBrushAreaData(
-                        linesData,
-                        startDate,
-                        endDate
-                    );
-                    if (brushedAreaData.length > 0) {
-                        setLinesData(brushedAreaData);
-                        xScale.domain([startDate, endDate]);
-                        bounds.select('.brush').call(brush.move, null);
-                        xAxis.transition().duration(1000).call(xAxisGenerator);
-                        bounds.select('.line').each(function (d, i) {
-                            d3.select(this)
-                                .transition()
-                                .duration(1000)
-                                .attr('d', lineConstructor(brushedAreaData, yValues[i]))
-                                .attr('fill', 'none')
-                                .attr('stroke', (d) => colorsList[i]);
-                        });
-                    }
-                    setIsBrushing(false);
-                }
-            }
-        }
+        const listeningRect = wrapper
+            .append('rect')
+            .attr('class', 'listening-rect')
+            .attr('opacity', 0)
+            .attr('width', dims.width)
+            .attr('height', dims.height)
+            .on('mousemove', onMouseMove)
+            .on('touchmove', onTouchMove)
+            .on('click', onClick);
     };
 
     return (
-        <div>
-            <Paper
-                id="tooltip"
-                variant="outlined"
-                className={classes.tooltip}
-            >
-                <span id="date" className={classes.date}>
-                </span>
-                <span id="performance" className={classes.performance}>
-                </span>
-            </Paper>
-            <div className={classes.main} id="main">
-                <div className={classes.btnContainer}>
-                    <Button
-                        variant="outlined"
-                        name="brush-zoom"
-                        color="primary"
-                        onClick={handleClick}
-                        disabled={isBrushing ? true : false}
-                        size="small"
-                        className={classes.actionBtn}
-                    >
-                        Zoom
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        name="reset-data"
-                        color="primary"
-                        onClick={handleClick}
-                        style={{ marginLeft: '.5em' }}
-                        size="small"
-                        className={classes.actionBtn}
-                    >
-                        Reset
-                    </Button>
+        <div className={classes.main} id="main">
+            <div className={classes.chartHeader}>
+                <div className={classes.chartHeaderLeft}>
+                    <span style={{fontSize: '1em'}}>
+                        Total return
+                    </span>
+                    <span style={{fontSize: '1.5em', color: 'green'}}>
+                        {SERVICE.USDFormat.format(118355620)}
+                    </span>
                 </div>
-                <svg
-                    id="line-chart-container"
-                    name="line-chart-container"
-                    className={classes.chart}
-                    onClick={handleClick}
-                    ref={chartSvg}
-                ></svg>
+                <div className={classes.chartHeaderRight}>
+                    <div className={classes.row} style={{margin: '0 0 .5em 0'}}>
+                        {viewOptionsList.map((option, i) => {
+                            return (
+                                <span
+                                    key={i}
+                                    className={viewOption === i
+                                        ? classes.viewOptionActive : classes.viewOption}
+                                    onClick={() => setViewOption(i)}
+                                >
+                                    {option}
+                                </span>
+                            )
+                        })}
+                    </div>
+                    <div
+                        className={classes.row}
+                        style={{ flexWrap: 'wrap', alignItems: 'flex-end' }}
+                    >
+                        {tooltipNames.map((name, i) => {
+                            return (
+                                <div
+                                    key={i}
+                                    className={classes.row}
+                                    style={{ alignItems: 'center', margin: '0 0 0 1em' }}
+                                >
+                                    <div
+                                        className={classes.square}
+                                        style={{ backgroundColor: colorsList[i] }}
+                                    ></div>
+                                    <span style={{ margin: '0 0 0 .3em', fontSize: '.8em' }}>
+                                        {name}
+                                    </span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
             </div>
+            <svg
+                id="line-chart-container"
+                name="line-chart-container"
+                className={classes.chart}
+                onClick={handleClick}
+                ref={chartSvg}
+            ></svg>
         </div>
     );
 };

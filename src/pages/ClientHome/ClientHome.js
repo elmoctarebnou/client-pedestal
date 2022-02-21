@@ -52,7 +52,7 @@ const ClientHome = (props) => {
                 fees: 0,
                 net_daily_balance: 7332612.4664437,
                 growth: 776696.3349437001,
-                cumulative_contributions: 6556078.8515,
+                cumulative_contributions: 8556078.8515,
                 value: 7332775.1864436995,
                 contributions: 4691326.9048,
             },
@@ -65,7 +65,7 @@ const ClientHome = (props) => {
                 fees: 0,
                 net_daily_balance: 7262624.4494437,
                 growth: 706708.3179436998,
-                cumulative_contributions: 6556078.8515,
+                cumulative_contributions: 8556078.8515,
                 value: 7262787.1694436995,
                 contributions: 0,
             },
@@ -78,7 +78,7 @@ const ClientHome = (props) => {
                 fees: 0,
                 net_daily_balance: 7290482.472343701,
                 growth: 734566.3408437009,
-                cumulative_contributions: 6556078.8515,
+                cumulative_contributions: 7556078.8515,
                 value: 7290645.192343701,
                 contributions: 0,
             },
@@ -195,7 +195,7 @@ const ClientHome = (props) => {
                 fees: 0,
                 net_daily_balance: 6903078.343643701,
                 growth: 435829.528843702,
-                cumulative_contributions: 6463317.694799999,
+                cumulative_contributions: 5463317.694799999,
                 value: 6899147.223643701,
                 contributions: -121612.95999999999,
             },
@@ -350,13 +350,12 @@ const ClientHome = (props) => {
     const classes = makeStyles(styles())();
     const renderPerformanceChart = () => {
         const dims = {
-            // width: window.innerWidth * .68,
-            width: window.innerWidth * .95,
-            height: 400,
+            width: window.innerWidth * .99,
+            height: 300,
             margin: {
                 top: 0,
-                right: 70,
-                bottom: 60,
+                right: 45,
+                bottom: 0,
                 left: 0,
             },
         };
@@ -384,7 +383,8 @@ const ClientHome = (props) => {
                 <PieChart
                     dataList={pieChartData}
                     valueMetric="dollar"
-                    labelPosition="bottom"
+                    labelPosition={window.innerWidth < 900
+                        ? "bottom" : "right"}
                 />
             );
         else return <></>;
